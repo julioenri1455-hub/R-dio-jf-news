@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>JF News — Rádio Escolar</title>
+  <meta name="description" content="Rádio escolar JF News — podcasts e sessões gravadas pelos alunos." />
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #122033;
+      --accent: #f39c12;
+      --muted: #6b7280;
+      --card: #f6f8fb;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter, system-ui, -apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial;background:var(--bg);color:var(--text)}
+    header{position:fixed;top:0;left:0;right:0;background:#fff;border-bottom:1px solid #eee;z-index:1000}
+    .nav{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px}
+    .brand{display:flex;align-items:center;gap:12px}.brand h1{font-size:20px;margin:0}
+    .menu{display:flex;gap:12px}.menu a{color:var(--text);text-decoration:none;padding:8px;border-radius:6px}.menu a:hover{background:#f3f4f6}
+    main{max-width:1100px;margin:84px auto 24px;padding:20px}
+    .card{background:var(--card);padding:14px;border-radius:10px;border:1px solid #e9edf2;margin-bottom:20px}
+    h2{margin-top:0}
+    .team-list{display:flex;flex-wrap:wrap;gap:8px}
+    .team-member{background:#fff;padding:8px;border-radius:8px;border:1px solid #eee;min-width:140px}
+    .small{font-size:13px;color:var(--muted)}
+    .btn{display:inline-block;padding:8px 12px;border-radius:8px;background:var(--accent);color:#fff;text-decoration:none}
+    footer{text-align:center;padding:20px 0;color:var(--muted);font-size:13px}
+    video,audio{width:100%;border-radius:8px;margin-top:6px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav">
+      <div class="brand">
+        <div style="width:46px;height:46px;border-radius:6px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700">JF</div>
+        <h1>JF News</h1>
+      </div>
+      <nav class="menu">
+        <a href="#videos">Vídeos</a>
+        <a href="#audios">Áudios</a>
+        <a href="#equipe">Equipe</a>
+        <a href="https://instagram.com/radiojfnews" target="_blank">Instagram</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="card" id="videos">
+      <h2>🎥 Vídeos Locais</h2>
+      <p class="small">Todos os vídeos da rádio aparecem automaticamente abaixo.</p>
+      <div id="video-list"></div>
+    </section>
+
+    <section class="card" id="audios">
+      <h2>🎧 Áudios das Sessões</h2>
+      <p class="small">Todos os áudios da rádio aparecem automaticamente abaixo.</p>
+      <div id="audio-list"></div>
+    </section>
+
+    <section class="card" id="equipe">
+      <h2>👥 Equipe</h2>
+      <div class="team-list">
+        <div class="team-member"><strong>Júlio</strong><div class="small">@julio_amaropb</div></div>
+        <div class="team-member"><strong>Sophia</strong><div class="small">@balbinoss_</div></div>
+        <div class="team-member"><strong>Fábio</strong><div class="small">@fabiohenriquealve</div></div>
+        <div class="team-member"><strong>Miguel</strong><div class="small">@ernandesgk</div></div>
+        <div class="team-member"><strong>Amaury</strong><div class="small">@am.aury4825</div></div>
+        <div class="team-member"><strong>Camila</strong><div class="small">@camilabalduino_</div></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div>JF News — Rádio Escolar © <span id="year"></span></div>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // Função para listar arquivos automaticamente (funciona em hospedagem com acesso a diretório)
+    async function loadFiles(path, type, containerId) {
+      try {
+        const response = await fetch(path);
+        const text = await response.text();
+
+        // Procurar arquivos .mp4 ou .mp3 na listagem
+        const regex = type === "video" ? /href="([^"]+\.mp4)"/g : /href="([^"]+\.mp3)"/g;
+        let match, html = "";
+        while ((match = regex.exec(text))) {
+          const fileName = decodeURIComponent(match[1].split("/").pop());
+          html += `
+            <div style="margin-bottom:12px">
+              <strong>${fileName}</strong><br>
+              ${type === "video"
+                ? `<video controls src="${path}${fileName}"></video>`
+                : `<audio controls src="${path}${fileName}"></audio>`}
+            </div>`;
+        }
+        document.getElementById(containerId).innerHTML = html || "<p class='small'>Nenhum arquivo encontrado.</p>";
+      } catch (err) {
+        document.getElementById(containerId).innerHTML = "<p class='small'>Não foi possível carregar os arquivos.</p>";
+      }
+    }
+
+    // Carregar vídeos e áudios automaticamente
+    loadFiles("data/videos/", "video", "video-list");
+    loadFiles("data/audios/", "audio", "audio-list");
+  </script>
+</body>
+</html>
